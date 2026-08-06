@@ -31,8 +31,10 @@
   <packaging>pom</packaging>
   <groupId>org.xwiki.contrib.numbered.content</groupId>
   <artifactId>application-numbered-content</artifactId>
-  <name>Numbered Content - Parent Model</name>
-  <description>Allows to automatically add number on the content (e.g., headings, paragraphs, figures)</description>
+  <name>Numbered Content</name>
+  <description>Provides automatic numbering for different types of contents. Currently: numbered headings and numbered
+    figures. In addition, integrates those numbers in the Table of Content and provides a reference macro to generate
+    numbered links to numbered contents.</description>
   <version>1.10.5-SNAPSHOT</version>
   <developers>
     <developer>
