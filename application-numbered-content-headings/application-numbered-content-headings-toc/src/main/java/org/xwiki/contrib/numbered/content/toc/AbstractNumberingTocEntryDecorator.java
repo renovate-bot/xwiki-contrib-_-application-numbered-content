@@ -32,7 +32,6 @@ import org.xwiki.contrib.numbered.content.headings.internal.HeadingsNumberingExe
 import org.xwiki.rendering.block.Block;
 import org.xwiki.rendering.block.HeaderBlock;
 import org.xwiki.rendering.block.SpaceBlock;
-import org.xwiki.rendering.block.SpecialSymbolBlock;
 import org.xwiki.rendering.block.WordBlock;
 
 import static org.xwiki.contrib.numbered.content.headings.HeadingsNumberingService.SKIP_PARAMETER;
@@ -65,7 +64,15 @@ public abstract class AbstractNumberingTocEntryDecorator implements TocEntryDeco
             }
         }
 
-        return cleanupEntryLabel(decoratedBlocks);
+        // We need at least one space block, otherwise the title of the page is used for the text of the entry.
+        // This can only happen for a heading that is empty and not numbered. Since XRENDERING-707 (XWiki 14.4.8,
+        // 14.10.6 and 15.1), TocBlockFilter#generateLabel already inserts a space block for empty headings. This
+        // fallback can thus be removed once the parent version of this extension is 14.10.6 or newer.
+        if (decoratedBlocks.isEmpty()) {
+            decoratedBlocks.add(new SpaceBlock());
+        }
+
+        return decoratedBlocks;
     }
 
     private Map<HeaderBlock, String> getHeadingsMap(Block rootBlock, TocEntriesResolver tocEntriesResolver)
@@ -91,26 +98,4 @@ public abstract class AbstractNumberingTocEntryDecorator implements TocEntryDeco
     }
 
     protected abstract boolean isNumbered(HeaderBlock headerBlock);
-
-    private List<Block> cleanupEntryLabel(List<Block> blocks)
-    {
-        // Remove all the trailing spaces and special symbols. For instance "Hello World !" becomes "Hello World"
-        List<Block> cleanedUpBlocks = new ArrayList<>(blocks);
-
-        while (!cleanedUpBlocks.isEmpty()) {
-            Block block = cleanedUpBlocks.get(cleanedUpBlocks.size() - 1);
-            if (block instanceof SpecialSymbolBlock || block instanceof SpaceBlock) {
-                cleanedUpBlocks.remove(cleanedUpBlocks.size() - 1);
-            } else {
-                break;
-            }
-        }
-
-        // We still need at least one space block, otherwise the title of the page is used for the text of the entry. 
-        if (cleanedUpBlocks.isEmpty()) {
-            cleanedUpBlocks.add(new SpaceBlock());
-        }
-
-        return cleanedUpBlocks;
-    }
 }
